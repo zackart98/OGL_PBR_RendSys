@@ -1,0 +1,6 @@
+#ifndef RENDSYS_CONFIG_HPP_INC
+#define RENDSYS_CONFIG_HPP_INC
+
+#define RSYS_NO_OLD_HARDWARE
+
+#endif

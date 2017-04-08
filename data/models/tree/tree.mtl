@@ -1,0 +1,24 @@
+# Blender MTL File: 'tree.blend'
+# Material Count: 2
+
+newmtl Material1
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.291765 0.448627 0.166275
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Leaves_bumpamt.tga
+map_Bump Leaves_bumpamt.tga
+
+newmtl Material2
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.715294 0.602353
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Trunk_bumpamt.tga
+map_Kd Trunk_diffcol.tga
