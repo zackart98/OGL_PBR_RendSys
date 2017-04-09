@@ -23,6 +23,16 @@ namespace rendsys
 		programID = 0;
 		uniforms  = boost::unordered_map<std::string, UniformData>( );
 	}
+	
+	// Dtor
+	Shader::~Shader( )
+	{
+		if (programID != 0)
+		{
+			glDeleteProgram(programID);
+			programID = 0;	
+		}
+	}
 
 	// Construct from paths
 	Shader::Shader(const boost::unordered_map<GLenum, std::string>& shaderPaths)

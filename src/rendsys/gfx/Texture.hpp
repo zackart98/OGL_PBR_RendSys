@@ -18,6 +18,10 @@ namespace rendsys
 	  public:
 		// Default ctor
 		Texture( );
+		
+		// Dtor
+		virtual ~Texture( );
+
 
 		// Load a texture from a file
 		explicit Texture(const std::string& texPath);
@@ -28,6 +32,10 @@ namespace rendsys
 		
 		// Unbind this texture from the specified texture unit
 		void UnbindTex(GLuint texUnitNum);
+		
+		
+		// Get the maximum number of textures that can be passed into shaders
+		static GLuint GetMaxCombinedTexUnits();
 		
 	  private:
 		// The current state of an OpenGL multitexture unit
@@ -47,6 +55,9 @@ namespace rendsys
 		// The states of all the multitexture units
 		static boost::unordered_map<GLuint, TexBinding> allTexBindings;
 
+		// The maximum number of textures that can be bound
+		static GLuint maxCombinedTexUnits;
+		
 		// Internal OpenGL texture name
 		GLuint textureID;
 

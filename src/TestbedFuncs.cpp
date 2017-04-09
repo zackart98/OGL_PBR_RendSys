@@ -11,10 +11,12 @@ namespace tstbd
 {
 	using rendsys::Shader;
 	using rendsys::Texture;
+	using rendsys::Sampler;
 
 	Shader*  testShader	= nullptr;
 	GLuint   triangleVaoID = 0, triangleVboID = 0;
-	Texture* testTex = nullptr;
+	Texture* testTex	 = nullptr;
+	Sampler* testSampler = nullptr;
 
 	void SetupTestbed( )
 	{
@@ -63,8 +65,15 @@ namespace tstbd
 				glBindVertexArray(0);
 			}
 		}
-		
+
 		testTex = new Texture("data/tex/wall.jpg");
+
+		{
+			testSampler = new Sampler( );
+			testSampler->SetSamplerFiltering(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			testSampler->SetSamplerWrapST(GL_REPEAT);
+			testSampler->SetSamplerAnisotropy(16.0f);
+		}
 	}
 
 	void RenderTestbed( )
@@ -81,7 +90,9 @@ namespace tstbd
 		testShader->UniformMat4f("mvpMat", glm::ortho(fbSz.x / -2.0f, fbSz.x / 2.0f, fbSz.y / -2.0f,
 													  fbSz.y / 2.0f, -1.0f, 1.0f));
 		testShader->Uniform1i("tex", 1);
-		testTex->BindTex(1); 
+		testTex->BindTex(1);
+		testSampler->BindSampler(1);
+
 
 		glBindVertexArray(triangleVaoID);
 		{
@@ -89,6 +100,7 @@ namespace tstbd
 		}
 		glBindVertexArray(0);
 		testShader->UnbindShader( );
+		testTex->UnbindTex(1);
 	}
 
 	void UpdateTestbed(float deltaTime)
@@ -108,6 +120,18 @@ namespace tstbd
 			glDeleteVertexArrays(1, &triangleVaoID);
 			glDeleteBuffers(1, &triangleVboID);
 			triangleVaoID = triangleVboID = 0;
+		}
+
+		if (testTex != nullptr)
+		{
+			delete testTex;
+			testTex = nullptr;
+		}
+
+		if (testSampler != nullptr)
+		{
+			delete testSampler;
+			testSampler = nullptr;
 		}
 	}
 }

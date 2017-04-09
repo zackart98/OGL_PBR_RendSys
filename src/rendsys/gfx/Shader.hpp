@@ -18,11 +18,14 @@ namespace rendsys
 {
 
 	// Wrapper class for an OpenGL shader object
-	class Shader
+	class Shader final
 	{
 	  public:
 		// Default ctor
 		Shader( );
+		
+		// Dtor
+		~Shader();
 
 		// Construct from paths
 		explicit Shader(const boost::unordered_map<GLenum, std::string>& shaderPaths);
