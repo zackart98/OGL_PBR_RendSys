@@ -8,5 +8,5 @@ uniform vec3 colors[3];
 
 void main()
 {
-	fColor = vec4(colors[1], 1.0);
+	fColor = vec4(colors[2], 1.0);
 }

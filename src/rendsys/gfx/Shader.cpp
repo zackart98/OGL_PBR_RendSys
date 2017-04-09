@@ -436,38 +436,39 @@ namespace rendsys
 					}
 				}
 
-				glUniform3fv(loc, v.size( ), &(data[0]));
+				glUniform4fv(loc, v.size( ), &(data[0]));
 			}
 		}
 	}
 
-	
-	
-	
+
+
+
 	void Shader::UniformMat4f(const std::string& uniName, const glm::mat4& m)
 	{
 		if (currentProgramID == programID && uniforms.count(uniName))
 		{
 			const UniformData& dat  = uniforms[uniName];
-			GLint			   loc  = dat.location;
+			GLint			   loc  = glGetUniformLocation(programID, uniName.c_str( ));
 			GLenum			   type = dat.type;
 
 			bool typeOK = (type == GL_FLOAT_MAT4);
 			if ((loc >= 0) && typeOK)
 			{
-				glUniformMatrix4fv(loc, 1, GL_FALSE, &(m[0][0]));
+				glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(m));
 			}
 		}
 	}
 
-	void Shader::UniformMat4fv(const std::string& uniName, const boost::container::vector<glm::mat4>& m)
+	void Shader::UniformMat4fv(const std::string&						  uniName,
+							   const boost::container::vector<glm::mat4>& m)
 	{
 		std::string name = uniName;
 		if (!boost::regex_search(name, boost::regex("\\[\\d\\]")))
 		{
 			name = name + "[0]";
 		}
-		
+
 		if (currentProgramID == programID && uniforms.count(name))
 		{
 			static const GLuint				  numComps = GLuint(4);
@@ -484,18 +485,16 @@ namespace rendsys
 					}
 				}
 			}
-			
+
 			const UniformData& dat  = uniforms[name];
-			GLint			   loc  = dat.location;
+			GLint			   loc  = glGetUniformLocation(programID, uniName.c_str( ));
 			GLenum			   type = dat.type;
 
 			bool typeOK = (type == GL_FLOAT_MAT4);
 			if ((loc >= 0) && typeOK)
 			{
-				glUniformMatrix4fv(loc, m.size(), GL_FALSE, &(data[0]));
+				glUniformMatrix4fv(loc, m.size( ), GL_FALSE, &(data[0]));
 			}
 		}
 	}
-
-
 }

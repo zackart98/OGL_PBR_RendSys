@@ -74,17 +74,18 @@ namespace tstbd
 		
 		boost::container::vector<glm::mat4> mvpMats = {
 			glm::mat4(1.0f),
-			glm::ortho(-640.0f, 640.0f, -fbSz.y / 2.0f, fbSz.y / 2.0f, -1.0f, 1.0f),
+			glm::mat4(1.0f),
 			glm::mat4(1.0f)
 		};
 		
-		testShader->UniformMat4f("mvpMats", mvpMats[1]);
+		testShader->UniformMat4f("mvpMat", glm::ortho(fbSz.x / -2.0f, fbSz.x / 2.0f, fbSz.y / -2.0f, fbSz.y / 2.0f, -1.0f, 1.0f));
 		
 		glBindVertexArray(triangleVaoID);
 		{
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 		}
 		glBindVertexArray(0);
+		testShader->UnbindShader( );
 	}
 
 	void UpdateTestbed(float deltaTime)
