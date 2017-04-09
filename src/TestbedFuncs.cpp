@@ -1,5 +1,7 @@
 #include <TestbedFuncs.hpp>
+
 #include <rendsys/gfx/Window.hpp>
+#include <rendsys/gfx/Texture.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -8,9 +10,11 @@
 namespace tstbd
 {
 	using rendsys::Shader;
+	using rendsys::Texture;
 
-	Shader* testShader	= nullptr;
-	GLuint  triangleVaoID = 0, triangleVboID = 0;
+	Shader*  testShader	= nullptr;
+	GLuint   triangleVaoID = 0, triangleVboID = 0;
+	Texture* testTex = nullptr;
 
 	void SetupTestbed( )
 	{
@@ -59,6 +63,8 @@ namespace tstbd
 				glBindVertexArray(0);
 			}
 		}
+		
+		testTex = new Texture("data/tex/wall.jpg");
 	}
 
 	void RenderTestbed( )
@@ -67,13 +73,16 @@ namespace tstbd
 
 		boost::container::vector<glm::vec3> colors = { glm::vec3(1, 0, 0), glm::vec3(1, 1, 0),
 													   glm::vec3(0, 0, 1) };
-		
-		testShader->Uniform3fv("colors", colors);
-		
-		glm::vec2 fbSz(rendsys::Window::Inst().FramebufferSize());
-		
-		testShader->UniformMat4f("mvpMat", glm::ortho(fbSz.x / -2.0f, fbSz.x / 2.0f, fbSz.y / -2.0f, fbSz.y / 2.0f, -1.0f, 1.0f));
-		
+
+		//testShader->Uniform3fv("colors", colors);
+
+		glm::vec2 fbSz(rendsys::Window::Inst( ).FramebufferSize( ));
+
+		testShader->UniformMat4f("mvpMat", glm::ortho(fbSz.x / -2.0f, fbSz.x / 2.0f, fbSz.y / -2.0f,
+													  fbSz.y / 2.0f, -1.0f, 1.0f));
+		testShader->Uniform1i("tex", 1);
+		testTex->BindTex(1); 
+
 		glBindVertexArray(triangleVaoID);
 		{
 			glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -92,6 +101,13 @@ namespace tstbd
 		{
 			delete testShader;
 			testShader = nullptr;
+		}
+
+		if (triangleVaoID != 0)
+		{
+			glDeleteVertexArrays(1, &triangleVaoID);
+			glDeleteBuffers(1, &triangleVboID);
+			triangleVaoID = triangleVboID = 0;
 		}
 	}
 }

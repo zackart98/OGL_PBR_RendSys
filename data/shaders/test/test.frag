@@ -1,12 +1,12 @@
 #version 330 core
 
 layout (location = 0) out vec4 fColor;
+in vec2 texCoords;
 
-uniform vec3 color;
 
-uniform vec3 colors[3];
+uniform sampler2D tex;
 
 void main()
 {
-	fColor = vec4(colors[2], 1.0);
+	fColor = vec4(texture(tex, texCoords).rgb, 1.0);
 }
