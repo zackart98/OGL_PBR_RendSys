@@ -72,12 +72,6 @@ namespace tstbd
 		
 		glm::vec2 fbSz(rendsys::Window::Inst().FramebufferSize());
 		
-		boost::container::vector<glm::mat4> mvpMats = {
-			glm::mat4(1.0f),
-			glm::mat4(1.0f),
-			glm::mat4(1.0f)
-		};
-		
 		testShader->UniformMat4f("mvpMat", glm::ortho(fbSz.x / -2.0f, fbSz.x / 2.0f, fbSz.y / -2.0f, fbSz.y / 2.0f, -1.0f, 1.0f));
 		
 		glBindVertexArray(triangleVaoID);
