@@ -59,8 +59,9 @@ namespace rendsys
 		void DrawVAO(GLenum mode);
 		
 		// Draw the vertex array using instanced rendering
-		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// 'mode' is the primitive rendering mode
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// 'mode' is the primitive rendering mode. 'numInsts' is the number
+		// instances to render using instanced rendering
 		void DrawVAOInst(GLenum mode, GLsizei numInsts);
 		
 	  private:
