@@ -10,10 +10,13 @@
 namespace tstbd
 {
 	extern rendsys::Shader* testShader;
-	extern GLuint triangleVaoID, triangleVboID;
 	extern rendsys::Texture* testTex;
 	extern rendsys::Sampler* testSampler;
-	extern rendsys::VertexArray* triangleVAO;
+	extern rendsys::VertexArray* squareVAO;
+	
+	extern GLsizei numSquaresX;
+	extern GLsizei numSquaresY;
+	extern GLsizei numSquares;
 	
 	void SetupTestbed();
 	void RenderTestbed();

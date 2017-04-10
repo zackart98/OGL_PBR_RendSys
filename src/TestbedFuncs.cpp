@@ -6,6 +6,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <boost/range/algorithm/reverse.hpp>
 
 #include <iostream>
 
@@ -18,14 +19,19 @@ namespace tstbd
 	using rendsys::VertexBuffer;
 
 
-	Shader*		 testShader	= nullptr;
-	GLuint		 triangleVaoID = 0, triangleVboID = 0;
+	Shader*		 testShader  = nullptr;
 	Texture*	 testTex	 = nullptr;
 	Sampler*	 testSampler = nullptr;
-	VertexArray* triangleVAO = nullptr;
+	VertexArray* squareVAO   = nullptr;
+
+	GLsizei numSquaresX = 8;
+	GLsizei numSquaresY = 8;
+	GLsizei numSquares  = numSquaresX * numSquaresY;
 
 	void SetupTestbed( )
 	{
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
 		// ~~~~~~~~~~~~~~~~~~~~ Load shaders ~~~~~~~~~~~~~~~~~~~~
 		{
 			boost::unordered_map<GLenum, std::string> shaderPaths;
@@ -40,60 +46,74 @@ namespace tstbd
 		// ~~~~~~~~~~~~~~~~~~~~~ VAOs ~~~~~~~~~~~~~~~~~~~~~
 		{
 
-			// Debug triangle VAO
+			// Debug square VAO
 			{
 
-				boost::container::vector<glm::vec3> positions = { glm::vec3(125, 125, 00),
-																  glm::vec3(125, 00, 00),
-																  glm::vec3(00, 00, 00),
-																  glm::vec3(00, 125, 00) };
+				GLfloat squareSize	= 80.0f;
+				GLfloat squarePadding = 8.0f;
+
+				boost::container::vector<glm::vec3> positions = {
+					glm::vec3(squareSize, squareSize, 00), glm::vec3(squareSize, 00, 00),
+					glm::vec3(00, 00, 00), glm::vec3(00, squareSize, 00)
+				};
 
 				boost::container::vector<glm::vec2> texCoords = { glm::vec2(1.0f, 0.0f),
 																  glm::vec2(1.0f, 1.0f),
 																  glm::vec2(0.0f, 1.0f),
 																  glm::vec2(0.0f, 0.0f) };
 
-				triangleVAO = new VertexArray( );
-				triangleVAO->BindVAO( );
+				squareVAO = new VertexArray( );
+				squareVAO->BindVAO( );
 
-				GLsizei		  posVboIdx = triangleVAO->CreateVertexBuffer( );
-				VertexBuffer* posVbo	= triangleVAO->GetVertexBuffer(posVboIdx);
+				GLsizei		  posVboIdx = squareVAO->CreateVertexBuffer( );
+				VertexBuffer* posVbo	= squareVAO->GetVertexBuffer(posVboIdx);
 
-				GLsizei		  tcVboIdx = triangleVAO->CreateVertexBuffer( );
-				VertexBuffer* tcVbo	= triangleVAO->GetVertexBuffer(tcVboIdx);
+				GLsizei		  tcVboIdx = squareVAO->CreateVertexBuffer( );
+				VertexBuffer* tcVbo	= squareVAO->GetVertexBuffer(tcVboIdx);
 
 				boost::container::vector<glm::mat4> modelMats;
-				for (GLint r = 0; r < 5; ++r)
+				GLint instIdx = numSquares;
+				for (GLint r = 0; r < numSquaresY; ++r)
 				{
-					for (GLint c = 0; c < 5; ++c)
+					for (GLint c = 0; c < numSquaresX; ++c)
 					{
-						glm::mat4 model = glm::translate(glm::mat4( ), glm::vec3(c, r, 0) * 130.0f + glm::vec3(5.0f, 5.0f, 0.0f));
+						glm::mat4 trans = glm::translate(
+							glm::mat4( ), glm::vec3(c, r, 0) * (squareSize + squarePadding) +
+											  glm::vec3(squarePadding, squarePadding, 0.0f));
+
+						glm::vec3 sclAmt = glm::vec3(instIdx, instIdx, 0) / static_cast<GLfloat>(numSquares);
+						glm::mat4 scal = glm::scale(glm::mat4( ), sclAmt);
+
+						glm::mat4 model = trans * scal;
+
 						modelMats.push_back(model);
+						instIdx--;
 					}
 				}
 
-				GLsizei		  mmatVboIdx = triangleVAO->CreateVertexBuffer( );
-				VertexBuffer* mmatVbo	= triangleVAO->GetVertexBuffer(mmatVboIdx);
+
+				GLsizei		  mmatVboIdx = squareVAO->CreateVertexBuffer( );
+				VertexBuffer* mmatVbo	= squareVAO->GetVertexBuffer(mmatVboIdx);
 
 				if (posVbo != nullptr && tcVbo != nullptr)
 				{
 
 					posVbo->BufferData(positions, GL_STATIC_DRAW);
 					posVbo->BindVBO( );
-					triangleVAO->SetupVertexAttribute(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
-													  RSYS_BUFR_OFST(0), false, false);
+					squareVAO->SetupVertexAttribute(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
+													RSYS_BUFR_OFST(0), false, false);
 
 					tcVbo->BufferData(texCoords, GL_STATIC_DRAW);
 					tcVbo->BindVBO( );
-					triangleVAO->SetupVertexAttribute(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2),
-													  RSYS_BUFR_OFST(0), false, false);
+					squareVAO->SetupVertexAttribute(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2),
+													RSYS_BUFR_OFST(0), false, false);
 
 					mmatVbo->BufferData(modelMats, GL_STATIC_DRAW);
 					mmatVbo->BindVBO( );
-					triangleVAO->SetupVertexAttribute(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
-													  RSYS_BUFR_OFST(0), true, true);
+					squareVAO->SetupVertexAttribute(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+													RSYS_BUFR_OFST(0), true, true);
 
-					triangleVAO->SetCount(4);
+					squareVAO->SetCount(4);
 				}
 			}
 		}
@@ -119,19 +139,18 @@ namespace tstbd
 
 		glm::vec2 fbSz(rendsys::Window::Inst( ).FramebufferSize( ));
 
-		glm::mat4 proj = glm::ortho(0.0f, fbSz.x, fbSz.y, 0.0f, -1.0f, 1.0f);
+		glm::mat4 projMat = glm::ortho(0.0f, fbSz.x, fbSz.y, 0.0f, -1.0f, 1.0f);
 
 		glm::mat4 rot	  = glm::rotate(glm::mat4( ), glm::radians(-45.0f), glm::vec3(0, 0, 1));
 		glm::mat4 modelMat = rot;
+		glm::mat4 mvpMat   = projMat * modelMat;
 
-		glm::mat4 mvpMat = proj;
-
-		testShader->UniformMat4f("projMat", proj);
+		testShader->UniformMat4f("projMat", projMat);
 		testShader->Uniform1i("tex", 1);
 		testTex->BindTex(1);
 		testSampler->BindSampler(1);
 
-		triangleVAO->DrawVAOInst(GL_TRIANGLE_FAN, 25);
+		squareVAO->DrawVAOInst(GL_TRIANGLE_FAN, numSquares);
 
 		testShader->UnbindShader( );
 		testTex->UnbindTex(1);
@@ -149,11 +168,10 @@ namespace tstbd
 			testShader = nullptr;
 		}
 
-		if (triangleVaoID != 0)
+		if (squareVAO != nullptr)
 		{
-			glDeleteVertexArrays(1, &triangleVaoID);
-			glDeleteBuffers(1, &triangleVboID);
-			triangleVaoID = triangleVboID = 0;
+			delete squareVAO;
+			squareVAO = nullptr;
 		}
 
 		if (testTex != nullptr)

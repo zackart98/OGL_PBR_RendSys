@@ -12,6 +12,5 @@ uniform mat4 projMat;
 void main()
 {
 	gl_Position = projMat * vModelMat * vPosition;
-	//color       = vColor;
 	texCoords = vTexCoords.xy;
 }
