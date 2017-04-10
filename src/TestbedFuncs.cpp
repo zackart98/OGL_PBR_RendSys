@@ -42,41 +42,58 @@ namespace tstbd
 
 			// Debug triangle VAO
 			{
-				static const GLuint numVerts = GLuint(3);
 
-				GLfloat vertData[numVerts][3][3] = {
-					{ { -150.0f, -150.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 0.0f } },
-					{ { +000.0f, +150.0f, 0.0f }, { 0.5f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-					{ { +150.0f, -150.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
-				};
+				boost::container::vector<glm::vec3> positions = { glm::vec3(125, 125, 00),
+																  glm::vec3(125, 00, 00),
+																  glm::vec3(00, 00, 00),
+																  glm::vec3(00, 125, 00) };
 
-				boost::container::vector<GLfloat> vertices;
-				for (GLuint i = 0; i < numVerts; ++i)
+				boost::container::vector<glm::vec2> texCoords = { glm::vec2(1.0f, 0.0f),
+																  glm::vec2(1.0f, 1.0f),
+																  glm::vec2(0.0f, 1.0f),
+																  glm::vec2(0.0f, 0.0f) };
+
+				triangleVAO = new VertexArray( );
+				triangleVAO->BindVAO( );
+
+				GLsizei		  posVboIdx = triangleVAO->CreateVertexBuffer( );
+				VertexBuffer* posVbo	= triangleVAO->GetVertexBuffer(posVboIdx);
+
+				GLsizei		  tcVboIdx = triangleVAO->CreateVertexBuffer( );
+				VertexBuffer* tcVbo	= triangleVAO->GetVertexBuffer(tcVboIdx);
+
+				boost::container::vector<glm::mat4> modelMats;
+				for (GLint r = 0; r < 5; ++r)
 				{
-					for (GLuint j = 0; j < 3; ++j)
+					for (GLint c = 0; c < 5; ++c)
 					{
-						for (GLuint k = 0; k < 3; ++k)
-						{
-							vertices.push_back(vertData[i][j][k]);
-						}
+						glm::mat4 model = glm::translate(glm::mat4( ), glm::vec3(c, r, 0) * 130.0f + glm::vec3(5.0f, 5.0f, 0.0f));
+						modelMats.push_back(model);
 					}
 				}
 
-				triangleVAO			 = new VertexArray( );
-				triangleVAO->BindVAO();
-				GLsizei		  vboIdx = triangleVAO->CreateVertexBuffer( );
-				VertexBuffer* vbo	= triangleVAO->GetVertexBuffer(vboIdx);
-				if (vbo != nullptr)
+				GLsizei		  mmatVboIdx = triangleVAO->CreateVertexBuffer( );
+				VertexBuffer* mmatVbo	= triangleVAO->GetVertexBuffer(mmatVboIdx);
+
+				if (posVbo != nullptr && tcVbo != nullptr)
 				{
 
-					vbo->BufferData(vertices, GL_STATIC_DRAW);
-					vbo->BindVBO( );
-					triangleVAO->SetupVertexAttribute(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+					posVbo->BufferData(positions, GL_STATIC_DRAW);
+					posVbo->BindVBO( );
+					triangleVAO->SetupVertexAttribute(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
 													  RSYS_BUFR_OFST(0), false, false);
-					triangleVAO->SetupVertexAttribute(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
-													  RSYS_BUFR_OFST(3 * sizeof(GLfloat)), false, false);
-					triangleVAO->SetupVertexAttribute(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), RSYS_BUFR_OFST(6 * sizeof(GLfloat)), false, false);
-					triangleVAO->SetCount(3);
+
+					tcVbo->BufferData(texCoords, GL_STATIC_DRAW);
+					tcVbo->BindVBO( );
+					triangleVAO->SetupVertexAttribute(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2),
+													  RSYS_BUFR_OFST(0), false, false);
+
+					mmatVbo->BufferData(modelMats, GL_STATIC_DRAW);
+					mmatVbo->BindVBO( );
+					triangleVAO->SetupVertexAttribute(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+													  RSYS_BUFR_OFST(0), true, true);
+
+					triangleVAO->SetCount(4);
 				}
 			}
 		}
@@ -102,23 +119,20 @@ namespace tstbd
 
 		glm::vec2 fbSz(rendsys::Window::Inst( ).FramebufferSize( ));
 
-		glm::mat4 proj =
-			glm::ortho(fbSz.x / -2.0f, fbSz.x / 2.0f, fbSz.y / -2.0f, fbSz.y / 2.0f, -1.0f, 1.0f);
+		glm::mat4 proj = glm::ortho(0.0f, fbSz.x, fbSz.y, 0.0f, -1.0f, 1.0f);
 
 		glm::mat4 rot	  = glm::rotate(glm::mat4( ), glm::radians(-45.0f), glm::vec3(0, 0, 1));
 		glm::mat4 modelMat = rot;
 
-		glm::mat4 mvpMat = proj * modelMat;
+		glm::mat4 mvpMat = proj;
 
-		testShader->UniformMat4f("mvpMat", mvpMat);
+		testShader->UniformMat4f("projMat", proj);
 		testShader->Uniform1i("tex", 1);
 		testTex->BindTex(1);
 		testSampler->BindSampler(1);
 
-		triangleVAO->DrawVAO(GL_TRIANGLES);
-		
-		
-		glBindVertexArray(0);
+		triangleVAO->DrawVAOInst(GL_TRIANGLE_FAN, 25);
+
 		testShader->UnbindShader( );
 		testTex->UnbindTex(1);
 	}

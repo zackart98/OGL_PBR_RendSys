@@ -58,6 +58,11 @@ namespace rendsys
 		// 'mode' is the primitive rendering mode
 		void DrawVAO(GLenum mode);
 		
+		// Draw the vertex array using instanced rendering
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// 'mode' is the primitive rendering mode
+		void DrawVAOInst(GLenum mode, GLsizei numInsts);
+		
 	  private:
 		// Internal OpenGL name for the vertex array object
 		GLuint vaoID;

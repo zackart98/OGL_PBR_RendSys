@@ -15,7 +15,7 @@ namespace rendsys
 
 		glGenVertexArrays(1, &vaoID);
 	}
-	
+
 	// Dtor
 	VertexArray::~VertexArray( )
 	{
@@ -53,11 +53,11 @@ namespace rendsys
 		return static_cast<GLsizei>(vbos.size( ) - 1);
 	}
 
-	void VertexArray::BindVAO()
+	void VertexArray::BindVAO( )
 	{
 		glBindVertexArray(vaoID);
 	}
-	
+
 	// Get a vertex buffer by index
 	VertexBuffer* VertexArray::GetVertexBuffer(GLsizei vboIdx)
 	{
@@ -74,22 +74,15 @@ namespace rendsys
 										   GLboolean normalized, GLsizei stride,
 										   const GLvoid* pointer, bool isInstanced, bool isMatrix)
 	{
-		if (isMatrix)
-		{
-			GLintptr startOffset = reinterpret_cast<GLintptr>(pointer);
-			GLintptr colOffset   = (isMatrix) ? (stride / size) : (0);
+		GLintptr startOffset = reinterpret_cast<GLintptr>(pointer);
+		GLintptr colOffset   = (isMatrix) ? (stride / size) : (0);
 
 
-			GLuint count = (isMatrix) ? (static_cast<GLuint>(size)) : (1);
-			for (GLuint i = 0; i < count; ++i)
-			{
-				SetupVertexAttribImpl(index + i, size, type, normalized, stride,
-									  RSYS_BUFR_OFST((startOffset + (colOffset * i))), isInstanced);
-			}
-		}
-		else
+		GLuint count = (isMatrix) ? (static_cast<GLuint>(size)) : (1);
+		for (GLuint i = 0; i < count; ++i)
 		{
-			SetupVertexAttribImpl(index, size, type, normalized, stride, pointer, isInstanced);
+			SetupVertexAttribImpl(index + i, size, type, normalized, stride,
+								  RSYS_BUFR_OFST((startOffset + (colOffset * i))), isInstanced);
 		}
 	}
 
@@ -120,6 +113,31 @@ namespace rendsys
 			else
 			{
 				glDrawArrays(mode, 0, count);
+			}
+
+			glBindVertexArray(GLuint(lastVAO));
+		}
+	}
+
+	// Draw the vertex array using instanced rendering
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// 'mode' is the primitive rendering mode
+	void VertexArray::DrawVAOInst(GLenum mode, GLsizei numInsts)
+	{
+		if (count > 0 && numInsts > 0)
+		{
+			GLint lastVAO;
+			glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &lastVAO);
+
+			glBindVertexArray(vaoID);
+
+			if (eboID != 0)
+			{
+				glDrawElementsInstanced(mode, count, GL_UNSIGNED_INT, 0, numInsts);
+			}
+			else
+			{
+				glDrawArraysInstanced(mode, 0, count, numInsts);
 			}
 
 			glBindVertexArray(GLuint(lastVAO));
