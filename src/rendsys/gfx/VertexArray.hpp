@@ -33,7 +33,15 @@ namespace rendsys
 		// Get a vertex buffer by index
 		VertexBuffer* GetVertexBuffer(GLsizei vboIdx);
 
+		// Add an element buffer object (EBO)
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// Creates and attaches an element buffer object for this vertex array. The EBO is
+		// filled with the indices from the argument 'indices'. SetCount() is called with
+		// the 'indices.size()' for 'newCount'.
+		void AddEBO(const boost::container::vector<GLuint>& indices);
+		
 		void BindVAO();
+		void UnbindVAO();
 
 		// Setup a vertex attribute for this vertex array
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

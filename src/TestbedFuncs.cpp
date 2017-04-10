@@ -143,7 +143,7 @@ namespace tstbd
 
 		glm::mat4 rot	  = glm::rotate(glm::mat4( ), glm::radians(-45.0f), glm::vec3(0, 0, 1));
 		glm::mat4 modelMat = rot;
-		glm::mat4 mvpMat   = projMat * modelMat;
+		//glm::mat4 mvpMat   = projMat * modelMat;
 
 		testShader->UniformMat4f("projMat", projMat);
 		testShader->Uniform1i("tex", 1);

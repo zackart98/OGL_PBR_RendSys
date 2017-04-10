@@ -3,6 +3,8 @@
 
 #include <rendsys/gfx/VertexArray.hpp>
 
+
+#include <boost/container/vector.hpp>
 #include <glm/glm.hpp>
 
 namespace rendsys
@@ -28,17 +30,43 @@ namespace rendsys
 	class StaticMesh
 	{
 	  public:
+		// Default ctor
+		StaticMesh( );
+
+		// Construct from vertices and indices
+		StaticMesh(const boost::container::vector<StaticMeshVertex>& verts,
+				   const boost::container::vector<GLuint>&			 idxs);
+
+		// Dtor
+		~StaticMesh( );
+
+
+		// Set the model matrix instance data
+		void SetModelMats(boost::container::vector<glm::mat4>& modelMats);
 		
-		StaticMesh();
 		
+		
+		// Draw the mesh using instanced renedering
+		void DrawMesh(GLenum primMode = GL_TRIANGLES);
+
+
 	  private:
-		
 		// The vertex array that holds the model data
 		VertexArray* vao;
-		
+
 		// The number of instances to draw
 		GLsizei numInsts;
-		
+
+
+		// Index of the VBO for the vertices
+		GLsizei vertVboIdx;
+
+		// Index of the model matrix VBO
+		GLsizei mmatVboIdx;
+
+		// Setup the mesh vertex array
+		void SetupMesh(const boost::container::vector<StaticMeshVertex>& verts,
+					   const boost::container::vector<GLuint>&			 idxs);
 	};
 }
 

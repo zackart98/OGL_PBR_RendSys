@@ -20,6 +20,7 @@ namespace rendsys
 		{
 			glGenBuffers(1, &vboID);
 			vboSize = 0;
+			dataUsage = GL_STATIC_DRAW;
 		}
 		
 		// Dtor
@@ -43,6 +44,24 @@ namespace rendsys
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			
 			vboSize = (sizeof(VertexT) * data.size());
+			dataUsage = usage;
+		}
+		
+		template <typename VertexT>
+		void BufferSubData(const boost::container::vector<VertexT>& data, GLsizeiptr offset)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, vboID);
+			GLsizeiptr reqSz = (sizeof(VertexT) * data.size()) + offset;
+			if (reqSz > vboSize)
+			{
+				glBufferData(GL_ARRAY_BUFFER, reqSz, NULL, GL_DYNAMIC_DRAW);
+				vboSize = reqSz;
+			}
+			
+			glBufferSubData(GL_ARRAY_BUFFER, offset, (sizeof(VertexT) * data.size()), &(data[0]));
+			
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+				
 		}
 		
 		// Bind the vertex buffer object to 'GL_ARRAY_BUFFER'
@@ -82,6 +101,9 @@ namespace rendsys
 
 		// The size of the buffer
 		GLsizeiptr vboSize;
+		
+		// The data usage type of the VBO
+		GLenum dataUsage;
 	};
 }
 

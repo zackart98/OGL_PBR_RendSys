@@ -57,6 +57,16 @@ namespace rendsys
 	{
 		glBindVertexArray(vaoID);
 	}
+	
+	void VertexArray::UnbindVAO( )
+	{
+		GLint lastVAO;
+		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &lastVAO);
+		if (lastVAO == GLint(vaoID))
+		{
+			glBindVertexArray(0);
+		}
+	}
 
 	// Get a vertex buffer by index
 	VertexBuffer* VertexArray::GetVertexBuffer(GLsizei vboIdx)
@@ -67,6 +77,26 @@ namespace rendsys
 		}
 
 		return nullptr;
+	}
+	
+	// Add an element buffer object (EBO)
+	void VertexArray::AddEBO(const boost::container::vector<GLuint>& indices)
+	{
+		GLint lastVAO;
+		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &lastVAO);
+		
+		BindVAO();
+		
+		if (glIsBuffer(eboID) == GL_FALSE)
+		{
+			glGenBuffers(1, &eboID);
+		}		
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (sizeof(GLuint) * indices.size()), &(indices[0]), GL_STATIC_DRAW);
+		
+		glBindVertexArray(lastVAO);
+		
+		SetCount(GLsizei(indices.size()));
 	}
 
 	// Setup a vertex attribute for this vertex array
@@ -256,4 +286,6 @@ namespace rendsys
 		}
 #endif
 	}
+	
+	
 }
