@@ -3,7 +3,9 @@
 #include <rendsys/gfx/Window.hpp>
 #include <rendsys/gfx/Texture.hpp>
 
+
 #include <glm/gtc/matrix_transform.hpp>
+
 
 #include <iostream>
 
@@ -12,11 +14,15 @@ namespace tstbd
 	using rendsys::Shader;
 	using rendsys::Texture;
 	using rendsys::Sampler;
+	using rendsys::VertexArray;
+	using rendsys::VertexBuffer;
 
-	Shader*  testShader	= nullptr;
-	GLuint   triangleVaoID = 0, triangleVboID = 0;
-	Texture* testTex	 = nullptr;
-	Sampler* testSampler = nullptr;
+
+	Shader*		 testShader	= nullptr;
+	GLuint		 triangleVaoID = 0, triangleVboID = 0;
+	Texture*	 testTex	 = nullptr;
+	Sampler*	 testSampler = nullptr;
+	VertexArray* triangleVAO = nullptr;
 
 	void SetupTestbed( )
 	{
@@ -36,33 +42,42 @@ namespace tstbd
 
 			// Debug triangle VAO
 			{
-				GLfloat vertices[][3][3] = {
+				static const GLuint numVerts = GLuint(3);
+
+				GLfloat vertData[numVerts][3][3] = {
 					{ { -150.0f, -150.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 0.0f } },
 					{ { +000.0f, +150.0f, 0.0f }, { 0.5f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
 					{ { +150.0f, -150.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
 				};
 
-				glGenVertexArrays(1, &triangleVaoID);
-				glGenBuffers(1, &triangleVboID);
-
-				glBindVertexArray(triangleVaoID);
+				boost::container::vector<GLfloat> vertices;
+				for (GLuint i = 0; i < numVerts; ++i)
 				{
-					glBindBuffer(GL_ARRAY_BUFFER, triangleVboID);
-					glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-					glEnableVertexAttribArray(0);
-					glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (9 * sizeof(GLfloat)),
-										  RSYS_BUFR_OFST(0));
-
-					glEnableVertexAttribArray(1);
-					glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (9 * sizeof(GLfloat)),
-										  RSYS_BUFR_OFST(3 * sizeof(GLfloat)));
-
-					glEnableVertexAttribArray(2);
-					glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, (9 * sizeof(GLfloat)),
-										  RSYS_BUFR_OFST(6 * sizeof(GLfloat)));
+					for (GLuint j = 0; j < 3; ++j)
+					{
+						for (GLuint k = 0; k < 3; ++k)
+						{
+							vertices.push_back(vertData[i][j][k]);
+						}
+					}
 				}
-				glBindVertexArray(0);
+
+				triangleVAO			 = new VertexArray( );
+				triangleVAO->BindVAO();
+				GLsizei		  vboIdx = triangleVAO->CreateVertexBuffer( );
+				VertexBuffer* vbo	= triangleVAO->GetVertexBuffer(vboIdx);
+				if (vbo != nullptr)
+				{
+
+					vbo->BufferData(vertices, GL_STATIC_DRAW);
+					vbo->BindVBO( );
+					triangleVAO->SetupVertexAttribute(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+													  RSYS_BUFR_OFST(0), false, false);
+					triangleVAO->SetupVertexAttribute(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+													  RSYS_BUFR_OFST(3 * sizeof(GLfloat)), false, false);
+					triangleVAO->SetupVertexAttribute(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), RSYS_BUFR_OFST(6 * sizeof(GLfloat)), false, false);
+					triangleVAO->SetCount(3);
+				}
 			}
 		}
 
@@ -87,17 +102,22 @@ namespace tstbd
 
 		glm::vec2 fbSz(rendsys::Window::Inst( ).FramebufferSize( ));
 
-		testShader->UniformMat4f("mvpMat", glm::ortho(fbSz.x / -2.0f, fbSz.x / 2.0f, fbSz.y / -2.0f,
-													  fbSz.y / 2.0f, -1.0f, 1.0f));
+		glm::mat4 proj =
+			glm::ortho(fbSz.x / -2.0f, fbSz.x / 2.0f, fbSz.y / -2.0f, fbSz.y / 2.0f, -1.0f, 1.0f);
+
+		glm::mat4 rot	  = glm::rotate(glm::mat4( ), glm::radians(-45.0f), glm::vec3(0, 0, 1));
+		glm::mat4 modelMat = rot;
+
+		glm::mat4 mvpMat = proj * modelMat;
+
+		testShader->UniformMat4f("mvpMat", mvpMat);
 		testShader->Uniform1i("tex", 1);
 		testTex->BindTex(1);
 		testSampler->BindSampler(1);
 
-
-		glBindVertexArray(triangleVaoID);
-		{
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-		}
+		triangleVAO->DrawVAO(GL_TRIANGLES);
+		
+		
 		glBindVertexArray(0);
 		testShader->UnbindShader( );
 		testTex->UnbindTex(1);

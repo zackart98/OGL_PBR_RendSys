@@ -100,7 +100,7 @@ namespace rendsys
 	void Sampler::BindSampler(GLuint texUnitNum)
 	{
 		GLuint maxCombined = Texture::GetMaxCombinedTexUnits( );
-		if (texUnitNum < maxCombined)
+		if (texUnitNum < maxCombined && glIsSampler(samplerID))
 		{
 			GLint lastTexUnit;
 			glGetIntegerv(GL_ACTIVE_TEXTURE, &lastTexUnit);

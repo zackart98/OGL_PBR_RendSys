@@ -4,6 +4,8 @@
 #include <rendsys/gfx/Shader.hpp>
 #include <rendsys/gfx/Texture.hpp>
 #include <rendsys/gfx/Sampler.hpp>
+#include <rendsys/gfx/VertexArray.hpp>
+#include <rendsys/gfx/VertexBuffer.hpp>
 
 namespace tstbd
 {
@@ -11,6 +13,7 @@ namespace tstbd
 	extern GLuint triangleVaoID, triangleVboID;
 	extern rendsys::Texture* testTex;
 	extern rendsys::Sampler* testSampler;
+	extern rendsys::VertexArray* triangleVAO;
 	
 	void SetupTestbed();
 	void RenderTestbed();
