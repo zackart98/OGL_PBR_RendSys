@@ -111,14 +111,6 @@ namespace rendsys
 			return tranMat * rotMat * sclMat;
 		}
 
-		// Get a look-at matrix that matches this structure
-		glm::mat4 GetLookAtMatrix( )
-		{
-			glm::mat4 rotMat   = glm::mat4_cast(rotate);
-			glm::mat4 transMat = glm::translate(glm::mat4( ), -translate);
-
-			return rotMat * transMat;
-		}
 
 	  private:
 		static float ClampQuatEuler(float a)

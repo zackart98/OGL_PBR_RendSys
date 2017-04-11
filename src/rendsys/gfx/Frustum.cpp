@@ -42,7 +42,7 @@ namespace rendsys
 			{
 				glm::mat4 rollMat =
 					glm::rotate(glm::mat4( ), glm::radians(rollAngle), glm::vec3(0, 0, 1));
-				//viewMat = rollMat * viewMat;
+				viewMat = rollMat * viewMat;
 			}
 			shouldUpdateViewMat = false;
 		}

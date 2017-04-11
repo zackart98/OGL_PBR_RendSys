@@ -160,8 +160,6 @@ namespace tstbd
 		viewFrustum.SetViewPos(viewPos);
 		viewFrustum.SetViewDir(viewDir);
 		
-		
-		
 		glm::mat4 projMat = viewFrustum.GetProjMatrix();
 		glm::mat4 viewMat = viewFrustum.GetViewMatrix();
 		
