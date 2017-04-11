@@ -6,6 +6,8 @@
 #include <rendsys/core/Initializer.hpp>
 #include <rendsys/gfx/TextureFuncs.hpp>
 #include <rendsys/gfx/Window.hpp>
+#include <rendsys/core/InputHandler.hpp>
+
 
 #include <iostream>
 
@@ -22,6 +24,8 @@ namespace rendsys
 		// Initialize FreeImage library
 		detail::InitFreeImage( );
 
+		InputHandler::Inst().InitInput();
+		
 		return success;
 	}
 

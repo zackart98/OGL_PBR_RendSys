@@ -6,6 +6,7 @@
 #include <rendsys/gfx/Sampler.hpp>
 #include <rendsys/gfx/VertexArray.hpp>
 #include <rendsys/gfx/VertexBuffer.hpp>
+#include <rendsys/gfx/StaticModel.hpp>
 
 namespace tstbd
 {
@@ -13,6 +14,7 @@ namespace tstbd
 	extern rendsys::Texture* testTex;
 	extern rendsys::Sampler* testSampler;
 	extern rendsys::VertexArray* squareVAO;
+	extern rendsys::StaticModel* nanosuitModel;
 	
 	extern GLsizei numSquaresX;
 	extern GLsizei numSquaresY;
@@ -22,6 +24,9 @@ namespace tstbd
 	void RenderTestbed();
 	void UpdateTestbed(float deltaTime);
 	void CleanupTestbed();
+	
+	
+	void OnEscapeKey(int action, int mods);
 }
 
 #endif

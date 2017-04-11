@@ -23,6 +23,9 @@ namespace rendsys
 		// Set the internal GLFW window pointer
 		void SetGLFWWindowPtr(GLFWwindow* winPtr);
 
+		// Get the internal GLFW window
+		GLFWwindow* GetGLFWWindowPtr();
+		
 		// Swap the OpenGL framebuffers for this window
 		void SwapBuffers( );
 
@@ -66,13 +69,12 @@ namespace rendsys
 		// Dtor
 		~Window( );
 
-
+		Window(const Window& rhs);
+		Window& operator=(const Window&);
+		
 		// Destroy the singleton instance at exit
 		static void DestroyWindow( );
 
-
-		Window(const Window& rhs);
-		Window& operator=(const Window&);
 
 		// GLFW framebuffer size callback
 		static void FramebufferSizeCB_GLFW(GLFWwindow* win, int width, int height);

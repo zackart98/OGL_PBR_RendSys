@@ -9,6 +9,7 @@
 #include <rendsys/gfx/Window.hpp>
 
 #include <TestbedFuncs.hpp>
+#include <rendsys/core/InputHandler.hpp>
 
 
 int
@@ -23,7 +24,7 @@ main(int argc, char** argv)
 
 		while (!rendsys::Window::Inst( ).ShouldQuit( ))
 		{
-			glfwPollEvents( );
+			rendsys::InputHandler::Inst().PollEvents();
 
 			tstbd::UpdateTestbed(static_cast<float>(deltaTime));
 

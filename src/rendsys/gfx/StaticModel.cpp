@@ -29,7 +29,23 @@ namespace rendsys
 		meshes.clear( );
 	}
 
+	// Draw the static model
+	void StaticModel::DrawModel(GLenum primMode)
+	{
+		for (auto& mesh : meshes)
+		{
+			mesh->DrawMesh(primMode);
+		}
+	}
 
+	// Set the model matrix instance data
+	void StaticModel::SetModelMats(boost::container::vector<glm::mat4>& modelMats)
+	{
+		for (auto& mesh : meshes)
+		{
+			mesh->SetModelMats(modelMats);
+		}
+	}
 
 	// Load the model from a file
 	bool StaticModel::LoadModel(const std::string& modelPath)

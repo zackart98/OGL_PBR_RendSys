@@ -66,6 +66,11 @@ namespace rendsys
 			glfwSetWindowPosCallback(windowPtr, &WindowPosCB_GLFW);
 		}
 	}
+	// Get the internal GLFW window
+	GLFWwindow* Window::GetGLFWWindowPtr( )
+	{
+		return windowPtr;
+	}
 
 	// Swap the OpenGL framebuffers for this window
 	void Window::SwapBuffers( )

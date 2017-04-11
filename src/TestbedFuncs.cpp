@@ -2,11 +2,14 @@
 
 #include <rendsys/gfx/Window.hpp>
 #include <rendsys/gfx/Texture.hpp>
+#include <rendsys/core/InputHandler.hpp>
 
+#include <rendsys/math/Transform.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <boost/range/algorithm/reverse.hpp>
+
 
 #include <iostream>
 
@@ -17,12 +20,17 @@ namespace tstbd
 	using rendsys::Sampler;
 	using rendsys::VertexArray;
 	using rendsys::VertexBuffer;
+	using rendsys::StaticModel;
+	using rendsys::Window;
+	using rendsys::InputHandler;
+	using rendsys::Transform;
 
-
-	Shader*		 testShader  = nullptr;
-	Texture*	 testTex	 = nullptr;
-	Sampler*	 testSampler = nullptr;
-	VertexArray* squareVAO   = nullptr;
+	Shader*		 testShader	= nullptr;
+	Texture*	 testTex	   = nullptr;
+	Sampler*	 testSampler   = nullptr;
+	VertexArray* squareVAO	 = nullptr;
+	StaticModel* nanosuitModel = nullptr;
+	float yaw;
 
 	GLsizei numSquaresX = 8;
 	GLsizei numSquaresY = 8;
@@ -31,7 +39,7 @@ namespace tstbd
 	void SetupTestbed( )
 	{
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
+		
 		// ~~~~~~~~~~~~~~~~~~~~ Load shaders ~~~~~~~~~~~~~~~~~~~~
 		{
 			boost::unordered_map<GLenum, std::string> shaderPaths;
@@ -72,7 +80,7 @@ namespace tstbd
 				VertexBuffer* tcVbo	= squareVAO->GetVertexBuffer(tcVboIdx);
 
 				boost::container::vector<glm::mat4> modelMats;
-				GLint instIdx = numSquares;
+				GLint								instIdx = numSquares;
 				for (GLint r = 0; r < numSquaresY; ++r)
 				{
 					for (GLint c = 0; c < numSquaresX; ++c)
@@ -81,7 +89,8 @@ namespace tstbd
 							glm::mat4( ), glm::vec3(c, r, 0) * (squareSize + squarePadding) +
 											  glm::vec3(squarePadding, squarePadding, 0.0f));
 
-						glm::vec3 sclAmt = glm::vec3(instIdx, instIdx, 0) / static_cast<GLfloat>(numSquares);
+						glm::vec3 sclAmt =
+							glm::vec3(instIdx, instIdx, 0) / static_cast<GLfloat>(numSquares);
 						glm::mat4 scal = glm::scale(glm::mat4( ), sclAmt);
 
 						glm::mat4 model = trans * scal;
@@ -126,38 +135,48 @@ namespace tstbd
 			testSampler->SetSamplerWrapST(GL_REPEAT);
 			testSampler->SetSamplerAnisotropy(16.0f);
 		}
+
+		{
+			nanosuitModel = new StaticModel("data/models/nanosuit/nanosuit.obj");
+		}
+		
+		{
+			InputHandler::Inst().RegisterKeyCallback(GLFW_KEY_ESCAPE, OnEscapeKey);
+		}
 	}
+	
+	
 
 	void RenderTestbed( )
 	{
+		Transform viewTransform;
+		viewTransform.translate = glm::vec3(0, 0, 3.0);
+		viewTransform.SetYaw(yaw);
+		viewTransform.SetPitch(yaw * 2);
+		viewTransform.SetRoll(yaw * 4);
+		std::cout << yaw << std::endl;
+		
+		glm::vec2 fbSz(Window::Inst( ).FramebufferSize( ));
+		glm::mat4 projMat = glm::perspective(glm::radians(45.0f), (fbSz.x / fbSz.y), 0.1f, 100.0f);
+		glm::mat4 viewMat = viewTransform.GetLookAtMatrix();
+		glm::mat4 modelMat = glm::scale(glm::mat4( ), glm::vec3(0.6, 0.6, 0.6));
+
+		boost::container::vector<glm::mat4> modelMats = { modelMat };
+		nanosuitModel->SetModelMats(modelMats);
+
 		testShader->BindShader( );
-
-		boost::container::vector<glm::vec3> colors = { glm::vec3(1, 0, 0), glm::vec3(1, 1, 0),
-													   glm::vec3(0, 0, 1) };
-
-		//testShader->Uniform3fv("colors", colors);
-
-		glm::vec2 fbSz(rendsys::Window::Inst( ).FramebufferSize( ));
-
-		glm::mat4 projMat = glm::ortho(0.0f, fbSz.x, fbSz.y, 0.0f, -1.0f, 1.0f);
-
-		glm::mat4 rot	  = glm::rotate(glm::mat4( ), glm::radians(-45.0f), glm::vec3(0, 0, 1));
-		glm::mat4 modelMat = rot;
-		//glm::mat4 mvpMat   = projMat * modelMat;
-
 		testShader->UniformMat4f("projMat", projMat);
-		testShader->Uniform1i("tex", 1);
-		testTex->BindTex(1);
-		testSampler->BindSampler(1);
-
-		squareVAO->DrawVAOInst(GL_TRIANGLE_FAN, numSquares);
-
+		testShader->UniformMat4f("viewMat", viewMat);
+		testShader->Uniform3f("color", glm::vec3(1.0f, 1.0f, 0.0f));
+		
+		nanosuitModel->DrawModel();
+		
 		testShader->UnbindShader( );
-		testTex->UnbindTex(1);
 	}
 
 	void UpdateTestbed(float deltaTime)
 	{
+		yaw += deltaTime * 15.0f;
 	}
 
 	void CleanupTestbed( )
@@ -184,6 +203,15 @@ namespace tstbd
 		{
 			delete testSampler;
 			testSampler = nullptr;
+		}
+	}
+	
+	void OnEscapeKey(int action, int mods)
+	{
+		if (action == GLFW_PRESS)
+		{
+			GLFWwindow* win = Window::Inst().GetGLFWWindowPtr();
+			glfwSetWindowShouldClose(win, GLFW_TRUE);
 		}
 	}
 }

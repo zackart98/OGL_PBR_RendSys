@@ -27,6 +27,13 @@ namespace rendsys
 		~StaticModel( );
 		
 		
+		
+		// Draw the static model
+		void DrawModel(GLenum primMode = GL_TRIANGLES);
+		
+		// Set the model matrix instance data
+		void SetModelMats(boost::container::vector<glm::mat4>& modelMats);
+		
 
 		// Load the model from a file
 		bool LoadModel(const std::string& modelPath);
