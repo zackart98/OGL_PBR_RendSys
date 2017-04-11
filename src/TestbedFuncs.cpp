@@ -5,6 +5,7 @@
 #include <rendsys/core/InputHandler.hpp>
 
 #include <rendsys/math/Transform.hpp>
+#include <rendsys/gfx/Frustum.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -24,6 +25,7 @@ namespace tstbd
 	using rendsys::Window;
 	using rendsys::InputHandler;
 	using rendsys::Transform;
+	using rendsys::Frustum;
 
 	Shader*		 testShader	= nullptr;
 	Texture*	 testTex	   = nullptr;
@@ -149,17 +151,22 @@ namespace tstbd
 
 	void RenderTestbed( )
 	{
-		Transform viewTransform;
-		viewTransform.translate = glm::vec3(0, 0, 3.0);
-		viewTransform.SetYaw(yaw);
-		viewTransform.SetPitch(0);
-		viewTransform.SetRoll(0);
+		glm::vec3 viewPos = glm::vec3(2, 1.5, 3);
+		glm::vec3 viewDir = glm::normalize(glm::vec3(0, 1.5, 0) - viewPos);
 		
 		glm::vec2 fbSz(Window::Inst( ).FramebufferSize( ));
-		glm::mat4 projMat = glm::perspective(glm::radians(45.0f), (fbSz.x / fbSz.y), 0.1f, 100.0f);
-		glm::mat4 viewMat = viewTransform.GetLookAtMatrix();
+		Frustum viewFrustum;
+		viewFrustum.SetAspect(fbSz.x / fbSz.y);
+		viewFrustum.SetViewPos(viewPos);
+		viewFrustum.SetViewDir(viewDir);
+		
+		
+		
+		glm::mat4 projMat = viewFrustum.GetProjMatrix();
+		glm::mat4 viewMat = viewFrustum.GetViewMatrix();
+		
 		glm::mat4 modelMat = glm::scale(glm::mat4( ), glm::vec3(0.6, 0.6, 0.6));
-
+		
 		boost::container::vector<glm::mat4> modelMats = { modelMat };
 		nanosuitModel->SetModelMats(modelMats);
 

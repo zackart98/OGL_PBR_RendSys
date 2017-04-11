@@ -24,6 +24,59 @@ namespace rendsys
 		// Get a view matrix for this frustum
 		glm::mat4 GetViewMatrix( );
 
+		// Get a projection matrix for this frustum
+		glm::mat4 GetProjMatrix( );
+
+		
+		// Get the field of view
+		GLfloat GetFOV();
+		
+		// Set the field of view
+		void SetFOV(GLfloat newFOV);
+		
+		
+		// Get the aspect ratio
+		GLfloat GetAspect();
+		
+		// Set the field of view
+		void SetAspect(GLfloat newAspect);
+		
+		
+		// Get the near clipping plane distance
+		GLfloat GetZNear();
+		
+		// Set the near clipping plane distance
+		void SetZNear(GLfloat newZNear);
+		
+		
+		// Get the far clipping plane distance
+		GLfloat GetZFar();
+		
+		// Set the far clipping plane distance
+		void SetZFar(GLfloat newZFar);
+		
+		
+		// Get the view position
+		glm::vec3 GetViewPos();
+		
+		// Set the view position
+		void SetViewPos(const glm::vec3& newViewPos);
+		
+		
+		// Get the view direction
+		glm::vec3 GetViewDir();
+		
+		// Set the view direction
+		void SetViewDir(const glm::vec3& newViewDir);
+		
+		
+		
+		// Get the rotation on the Z-Axis
+		GLfloat GetRoll();
+		
+		// Set the rotation on the Z-Axis
+		void SetRoll(GLfloat newRoll);
+		
 	  private:
 		// Field-of-view, in degrees
 		GLfloat fov;
@@ -48,6 +101,8 @@ namespace rendsys
 		GLfloat rollAngle;
 
 
+		// Frustum planes out of date?
+		bool shouldUpdatePlanes;
 
 
 		// View matrix out of date?

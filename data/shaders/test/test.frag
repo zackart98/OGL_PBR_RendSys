@@ -9,5 +9,5 @@ uniform sampler2D tex;
 
 void main()
 {
-	fColor = vec4(normalize(normal), 1.0);
+	fColor = vec4(color, 1.0);
 }
