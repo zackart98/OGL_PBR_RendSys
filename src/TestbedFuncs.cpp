@@ -152,9 +152,8 @@ namespace tstbd
 		Transform viewTransform;
 		viewTransform.translate = glm::vec3(0, 0, 3.0);
 		viewTransform.SetYaw(yaw);
-		viewTransform.SetPitch(yaw * 2);
-		viewTransform.SetRoll(yaw * 4);
-		std::cout << yaw << std::endl;
+		viewTransform.SetPitch(0);
+		viewTransform.SetRoll(0);
 		
 		glm::vec2 fbSz(Window::Inst( ).FramebufferSize( ));
 		glm::mat4 projMat = glm::perspective(glm::radians(45.0f), (fbSz.x / fbSz.y), 0.1f, 100.0f);
